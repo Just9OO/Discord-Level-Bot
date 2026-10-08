@@ -1,8 +1,8 @@
 <div align="center">
 
-# 馃悏 Discord Level Bot
+# 🐉 Discord Level Bot
 
-**Text XP 路 Voice XP 路 Activity Roles 路 Daily Streaks 路 Dark & Red Rank Cards**
+**Text XP · Voice XP · Activity Roles · Daily Streaks · Dark & Red Rank Cards**
 
 A self-hosted Discord levelling bot built on `discord.js` v14, SQLite and `@napi-rs/canvas`.
 Text and voice activity are tracked separately, rendered as image cards, and rewarded with roles.
@@ -14,7 +14,7 @@ No dashboard, no subscription, no data leaving your server.
 [![SQLite](https://img.shields.io/badge/storage-SQLite-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-[Features](#features) 路 [Quick start](#quick-start) 路 [Commands](#commands) 路 [Configuration](#configuration) 路 [How it works](#how-it-works) 路 [Hosting](#hosting) 路 [Troubleshooting](#troubleshooting) 路 [Changelog](CHANGELOG.md)
+[Features](#features) · [Quick start](#quick-start) · [Commands](#commands) · [Configuration](#configuration) · [How it works](#how-it-works) · [Hosting](#hosting) · [Troubleshooting](#troubleshooting) · [Changelog](CHANGELOG.md)
 
 </div>
 
@@ -33,16 +33,16 @@ Add screenshots to docs/images/ and uncomment:
 
 | | |
 |---|---|
-| 馃幋 **Image cards** | Dark and red level card, level-up card and leaderboard rendered with `@napi-rs/canvas` 鈥� fully recolourable per server |
-| 馃挰馃帣锔� **Text + voice XP** | Two independent XP tracks, levels, ranks and role ladders |
-| 馃弳 **Leaderboards** | Today / week / month / all-time, paged with buttons, with avatars and your own rank |
-| 馃巵 **Daily rewards** | `/daily` with a streak bonus (+10 % per day, up to +90 %) |
-| 馃幁 **Activity roles** | Auto-created or mapped to your own roles, stack or single mode, one-command resync |
-| 鈿� **XP boost events** | Timed server-wide multipliers |
-| 馃洝锔� **Anti-abuse** | 60 s cooldown, minimum length, duplicate-message filter, no voice XP when muted, alone, in AFK, or for bots |
-| 鈿欙笍 **Admin control** | `/config` for toggles, ignored channels, no-XP roles, XP rates, manual level overrides |
-| 馃殌 **Built for small hosts** | Batched SQLite writes, render limiter, avatar/background caches, skip-if-unchanged command deploys |
-| 馃捑 **Self-contained** | One SQLite file, automatic migrations, owner-only `/backup` |
+| 🎴 **Image cards** | Dark and red level card, level-up card and leaderboard rendered with `@napi-rs/canvas` — fully recolourable per server |
+| 💬🎙️ **Text + voice XP** | Two independent XP tracks, levels, ranks and role ladders |
+| 🏆 **Leaderboards** | Today / week / month / all-time, paged with buttons, with avatars and your own rank |
+| 🎁 **Daily rewards** | `/daily` with a streak bonus (+10 % per day, up to +90 %) |
+| 🎭 **Activity roles** | Auto-created or mapped to your own roles, stack or single mode, one-command resync |
+| ⚡ **XP boost events** | Timed server-wide multipliers |
+| 🛡️ **Anti-abuse** | 60 s cooldown, minimum length, duplicate-message filter, no voice XP when muted, alone, in AFK, or for bots |
+| ⚙️ **Admin control** | `/config` for toggles, ignored channels, no-XP roles, XP rates, manual level overrides |
+| 🚀 **Built for small hosts** | Batched SQLite writes, render limiter, avatar/background caches, skip-if-unchanged command deploys |
+| 💾 **Self-contained** | One SQLite file, automatic migrations, owner-only `/backup` |
 
 ---
 
@@ -56,20 +56,20 @@ Add screenshots to docs/images/ and uncomment:
 
 ### 1. Create the bot
 
-1. Open the [Developer Portal](https://discord.com/developers/applications) 鈫� **New Application**.
-2. **Bot** tab 鈫� enable **Server Members Intent** and **Message Content Intent**, then **Reset Token** and copy it.
-3. **OAuth2 鈫� General** 鈫� copy the **Client ID**.
+1. Open the [Developer Portal](https://discord.com/developers/applications) → **New Application**.
+2. **Bot** tab → enable **Server Members Intent** and **Message Content Intent**, then **Reset Token** and copy it.
+3. **OAuth2 → General** → copy the **Client ID**.
 
 ### 2. Invite it
 
-**OAuth2 鈫� URL Generator**, scopes `bot` and `applications.commands`, with these permissions:
+**OAuth2 → URL Generator**, scopes `bot` and `applications.commands`, with these permissions:
 
 ```
-View Channels 路 Send Messages 路 Embed Links 路 Attach Files
-Read Message History 路 Manage Roles 路 Connect
+View Channels · Send Messages · Embed Links · Attach Files
+Read Message History · Manage Roles · Connect
 ```
 
-> **Manage Roles** lets the bot hand out level roles. Drag the bot's role **above** your level roles in *Server Settings 鈫� Roles*.
+> **Manage Roles** lets the bot hand out level roles. Drag the bot's role **above** your level roles in *Server Settings → Roles*.
 
 ### 3. Install and run
 
@@ -99,10 +99,10 @@ Slash commands are registered automatically on startup (and only re-registered w
 
 | Variable | Required | Description |
 |---|---|---|
-| `DISCORD_TOKEN` | 鉁� | Bot token from the Developer Portal |
-| `CLIENT_ID` | 鉁� | Application (client) ID |
-| `GUILD_ID` | 鈥� | Register commands to one server (instant). Leave empty for global (up to 1 h) |
-| `DB_PATH` | 鈥� | SQLite file location. Default `./data/bot.db` |
+| `DISCORD_TOKEN` | ✅ | Bot token from the Developer Portal |
+| `CLIENT_ID` | ✅ | Application (client) ID |
+| `GUILD_ID` | — | Register commands to one server (instant). Leave empty for global (up to 1 h) |
+| `DB_PATH` | — | SQLite file location. Default `./data/bot.db` |
 
 ### Optional fonts
 
@@ -142,7 +142,7 @@ Defaults use the red theme. Override per server with `/set-card-color`:
 | `/stats` | Server totals and top users |
 | `/help` | Command list (admins see the full list) |
 
-### Admin 鈥� settings
+### Admin — settings
 
 | Command | Description |
 |---|---|
@@ -152,12 +152,12 @@ Defaults use the red theme. Override per server with `/set-card-color`:
 | `/config antispam <bool>` | No XP for repeating the same message |
 | `/config daily-xp <0-5000>` | Base XP for `/daily` (`0` disables it) |
 | `/set-channel [channel]` | Level-up channel (omit to use the triggering channel) |
-| `/set-xp-rate 鈥 | Text range, voice rate and permanent multiplier |
+| `/set-xp-rate …` | Text range, voice rate and permanent multiplier |
 | `/set-card-color <element> <hex>` | Recolour the cards |
 | `/ignore-channel <channel>` | Toggle XP in a channel (threads inherit it) |
 | `/no-xp-role <role>` | Toggle a role's ability to earn text **and** voice XP |
 
-### Admin 鈥� users and roles
+### Admin — users and roles
 
 | Command | Description |
 |---|---|
@@ -182,14 +182,14 @@ Defaults use the red theme. Override per server with `/set-card-color`:
 
 | Source | Rule |
 |---|---|
-| **Text** | 15鈥�25 XP per message (configurable), 60 s cooldown, messages under 5 characters ignored, identical repeats ignored |
+| **Text** | 15–25 XP per message (configurable), 60 s cooldown, messages under 5 characters ignored, identical repeats ignored |
 | **Voice** | 10 XP per minute while unmuted and undeafened, with at least `voice-min-users` humans in the channel. AFK channel, ignored channels, no-XP roles and bots earn nothing |
-| **Daily** | `daily-xp 脳 (1 + 0.1 脳 min(streak 鈭� 1, 9))`. Streak survives 48 h gaps |
+| **Daily** | `daily-xp × (1 + 0.1 × min(streak − 1, 9))`. Streak survives 48 h gaps |
 | **Boost** | A running `/xp-boost` replaces the base multiplier until it expires |
 
 ### Level curve
 
-XP needed to *reach* level `n` from `n 鈭� 1` is `floor(100 脳 n^1.5)`. Max level is 100.
+XP needed to *reach* level `n` from `n − 1` is `floor(100 × n^1.5)`. Max level is 100.
 
 | Level | XP for that level | Total XP |
 |---:|---:|---:|
@@ -205,22 +205,22 @@ XP needed to *reach* level `n` from `n 鈭� 1` is `floor(100 脳 n^1.5)`. Max 
 
 ```text
 src/
-鈹溾攢鈹� index.js                  entry: load commands/events, housekeeping, graceful shutdown
-鈹溾攢鈹� commands/                 one file per slash command
-鈹溾攢鈹� events/
-鈹�   鈹溾攢鈹� messageCreate.js      text XP, cooldown, anti-spam
-鈹�   鈹溾攢鈹� voiceStateUpdate.js   voice tracking + 60 s XP ticker
-鈹�   鈹溾攢鈹� ready.js              seeds the voice tracker, starts the ticker
-鈹�   鈹斺攢鈹� interactionCreate.js  command router
-鈹溾攢鈹� database/
-鈹�   鈹斺攢鈹� db.js                 SQLite, migrations, write-behind cache, XP math
-鈹斺攢鈹� utils/
-    鈹溾攢鈹� cardRenderer.js       level / level-up / leaderboard cards (+ caches, limiter)
-    鈹溾攢鈹� levelUp.js            shared flow: role 鈫� card 鈫� announcement
-    鈹溾攢鈹� roleManager.js        create / assign / sync level roles
-    鈹溾攢鈹� deployCommands.js     registers slash commands when they changed
-    鈹溾攢鈹� theme.js              embed colour helper
-    鈹斺攢鈹� xpHelpers.js          validation + formatting
+├── index.js                  entry: load commands/events, housekeeping, graceful shutdown
+├── commands/                 one file per slash command
+├── events/
+│   ├── messageCreate.js      text XP, cooldown, anti-spam
+│   ├── voiceStateUpdate.js   voice tracking + 60 s XP ticker
+│   ├── ready.js              seeds the voice tracker, starts the ticker
+│   └── interactionCreate.js  command router
+├── database/
+│   └── db.js                 SQLite, migrations, write-behind cache, XP math
+└── utils/
+    ├── cardRenderer.js       level / level-up / leaderboard cards (+ caches, limiter)
+    ├── levelUp.js            shared flow: role → card → announcement
+    ├── roleManager.js        create / assign / sync level roles
+    ├── deployCommands.js     registers slash commands when they changed
+    ├── theme.js              embed colour helper
+    └── xpHelpers.js          validation + formatting
 ```
 
 ### Data and performance
@@ -240,7 +240,7 @@ src/
 
 - Use Node 20, 22 or 24. `better-sqlite3` v12 ships prebuilt binaries for all three, so no compiler is needed.
 - After changing `package.json`, delete `node_modules` and `package-lock.json`, then run `npm install`.
-- CPU is capped, so the render limiter matters 鈥� don't raise it unless you have headroom.
+- CPU is capped, so the render limiter matters — don't raise it unless you have headroom.
 - Stop the bot from the panel instead of killing the container, and download `data/bot.db` (or run `/backup`) regularly.
 
 </details>
@@ -273,7 +273,7 @@ pm2 save && pm2 startup
 
 | Symptom | Fix |
 |---|---|
-| `Could not locate the bindings file 鈥� better_sqlite3.node` | Old `better-sqlite3` on Node 24. This project uses v12 鈥� delete `node_modules` and `package-lock.json`, run `npm install`. |
+| `Could not locate the bindings file — better_sqlite3.node` | Old `better-sqlite3` on Node 24. This project uses v12 — delete `node_modules` and `package-lock.json`, run `npm install`. |
 | Slash commands missing | Global commands take up to an hour. Set `GUILD_ID` for instant updates while testing. |
 | Bot ignores messages | Enable **Message Content Intent** in the Developer Portal. |
 | No level-up cards | Check `/config view` (announcements on?) and that the bot can **Send Messages** and **Attach Files** in the channel. |
@@ -295,4 +295,4 @@ Issues and pull requests are welcome.
 
 ## License
 
-[MIT](LICENSE) 鈥� use it, fork it, just keep the license file.
+[MIT](LICENSE) — use it, fork it, just keep the license file.
