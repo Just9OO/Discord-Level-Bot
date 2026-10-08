@@ -8,7 +8,7 @@ A self-hosted Discord levelling bot built on `discord.js` v14, SQLite and `@napi
 Text and voice activity are tracked separately, rendered as image cards, and rewarded with roles.
 No dashboard, no subscription, no data leaving your server.
 
-[![Version](https://img.shields.io/badge/version-1.1.0-E8381F)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.0-E8381F)](CHANGELOG.md)
 [![Node.js](https://img.shields.io/badge/node-%E2%89%A5%2020-3c873a?logo=node.js&logoColor=white)](https://nodejs.org)
 [![discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white)](https://discord.js.org)
 [![SQLite](https://img.shields.io/badge/storage-SQLite-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org)
