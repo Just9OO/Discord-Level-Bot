@@ -1,378 +1,298 @@
 <div align="center">
 
-# Discord Level Bot
+# 馃悏 Discord Level Bot
 
-**Text XP · Voice XP · Activity Roles · XP Boost Events · Custom Cards**
+**Text XP 路 Voice XP 路 Activity Roles 路 Daily Streaks 路 Dark & Red Rank Cards**
 
-A self-hosted Discord levelling bot built with Node.js. Tracks both chat and voice activity separately, generates rank cards, hands out roles as people level up, and lets admins run timed XP events. No dashboard, no subscription, no data leaving your server.
+A self-hosted Discord levelling bot built on `discord.js` v14, SQLite and `@napi-rs/canvas`.
+Text and voice activity are tracked separately, rendered as image cards, and rewarded with roles.
+No dashboard, no subscription, no data leaving your server.
 
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen?logo=node.js)](https://nodejs.org)
-[![discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord)](https://discord.js.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.1.0-E8381F)](CHANGELOG.md)
+[![Node.js](https://img.shields.io/badge/node-%E2%89%A5%2020-3c873a?logo=node.js&logoColor=white)](https://nodejs.org)
+[![discord.js](https://img.shields.io/badge/discord.js-v14-5865F2?logo=discord&logoColor=white)](https://discord.js.org)
+[![SQLite](https://img.shields.io/badge/storage-SQLite-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+
+[Features](#features) 路 [Quick start](#quick-start) 路 [Commands](#commands) 路 [Configuration](#configuration) 路 [How it works](#how-it-works) 路 [Hosting](#hosting) 路 [Troubleshooting](#troubleshooting) 路 [Changelog](CHANGELOG.md)
 
 </div>
 
----
+<!--
+Add screenshots to docs/images/ and uncomment:
 
-I built this because every level bot I tried either ignored voice completely, locked activity roles behind a paid tier, or stored everything on someone else's servers. This one is self-hosted, free, and tracks text and voice XP independently — same idea as Arcane but you own it.
-
----
-
-## What's included
-
-- Rank cards rendered as images — avatar, two XP bars (text and voice), current levels, server ranks, and your highest activity role shown as a badge
-- Leaderboards for text and voice, also rendered as image cards, with medals for the top 3
-- Activity roles that get awarded automatically when someone hits a level milestone — works for both text and voice XP
-- Default role sets the bot creates for you with one command, or you can map any existing role to any level
-- Stack mode (members keep every role they've earned) or single mode (only the highest role at any time)
-- XP boost events — start a timed multiplier for the whole server, announce it automatically, cancel it early if needed
-- Level-up announcements with the new rank card sent to whatever channel you pick
-- Anti-spam: 60-second cooldown per person, minimum message length, muted/deafened users don't earn voice XP
-- Full card colour customisation — accent, background, XP bars, and text, all configurable per server with a hex code
-- Admin commands that are actually hidden from regular members, not just permission-gated
-- Slash commands register themselves on startup, so hosting services that don't run a separate deploy step work fine
+<p align="center">
+  <img src="docs/images/level-card.png"   width="49%" alt="Level card">
+  <img src="docs/images/levelup-card.png" width="49%" alt="Level-up card">
+</p>
+-->
 
 ---
 
-## Setup
+## Features
 
-### 1. Create a bot account
+| | |
+|---|---|
+| 馃幋 **Image cards** | Dark and red level card, level-up card and leaderboard rendered with `@napi-rs/canvas` 鈥� fully recolourable per server |
+| 馃挰馃帣锔� **Text + voice XP** | Two independent XP tracks, levels, ranks and role ladders |
+| 馃弳 **Leaderboards** | Today / week / month / all-time, paged with buttons, with avatars and your own rank |
+| 馃巵 **Daily rewards** | `/daily` with a streak bonus (+10 % per day, up to +90 %) |
+| 馃幁 **Activity roles** | Auto-created or mapped to your own roles, stack or single mode, one-command resync |
+| 鈿� **XP boost events** | Timed server-wide multipliers |
+| 馃洝锔� **Anti-abuse** | 60 s cooldown, minimum length, duplicate-message filter, no voice XP when muted, alone, in AFK, or for bots |
+| 鈿欙笍 **Admin control** | `/config` for toggles, ignored channels, no-XP roles, XP rates, manual level overrides |
+| 馃殌 **Built for small hosts** | Batched SQLite writes, render limiter, avatar/background caches, skip-if-unchanged command deploys |
+| 馃捑 **Self-contained** | One SQLite file, automatic migrations, owner-only `/backup` |
 
-Go to [discord.com/developers/applications](https://discord.com/developers/applications) and click **New Application**.
+---
 
-Go to the **Bot** tab and do three things:
+## Quick start
 
-- Click **Add Bot**
-- Under **Privileged Gateway Intents**, enable both **Server Members Intent** and **Message Content Intent** — the bot won't work without these
-- Click **Reset Token**, copy the token, and save it somewhere
+### Requirements
 
-Then go to **OAuth2 → General** and copy your **Client ID** from the top of the page.
+- **Node.js 20 or newer** (22 LTS and 24 both work)
+- A Discord application with a bot user
+- A host that can run a long-lived Node process
 
-### 2. Invite it to your server
+### 1. Create the bot
 
-Go to **OAuth2 → URL Generator** and select these scopes:
+1. Open the [Developer Portal](https://discord.com/developers/applications) 鈫� **New Application**.
+2. **Bot** tab 鈫� enable **Server Members Intent** and **Message Content Intent**, then **Reset Token** and copy it.
+3. **OAuth2 鈫� General** 鈫� copy the **Client ID**.
+
+### 2. Invite it
+
+**OAuth2 鈫� URL Generator**, scopes `bot` and `applications.commands`, with these permissions:
 
 ```
-bot
-applications.commands
+View Channels 路 Send Messages 路 Embed Links 路 Attach Files
+Read Message History 路 Manage Roles 路 Connect
 ```
 
-And these permissions:
+> **Manage Roles** lets the bot hand out level roles. Drag the bot's role **above** your level roles in *Server Settings 鈫� Roles*.
 
-```
-View Channels
-Send Messages
-Embed Links
-Attach Files
-Read Message History
-Manage Roles     ← needed to assign activity roles
-Connect          ← needed to see who's in voice
-```
-
-The Manage Roles permission is new — the bot needs it to assign and remove activity roles when people level up. Open the generated URL in your browser to invite it.
-
-### 3. Install
+### 3. Install and run
 
 ```bash
 git clone https://github.com/yourusername/discord-level-bot.git
 cd discord-level-bot
 npm install
-```
-
-Node.js 18 or higher is required. Check yours with `node --version`.
-
-### 4. Configure
-
-```bash
-cp .env.example .env
-```
-
-Open `.env` and fill it in:
-
-```env
-DISCORD_TOKEN=your_bot_token_here
-CLIENT_ID=your_client_id_here
-
-# Set this to your server's ID while testing — commands update instantly
-# Remove it when you go live (global commands take up to an hour to propagate)
-GUILD_ID=
-
-DB_PATH=./data/bot.db
-```
-
-To find your server ID: turn on Developer Mode in Discord settings (under Advanced), then right-click your server icon and hit "Copy Server ID".
-
-### 5. Start it
-
-```bash
+cp .env.example .env     # then fill it in
 npm start
 ```
 
-The bot registers all slash commands automatically on startup, then logs in. It should come online in a few seconds.
+Slash commands are registered automatically on startup (and only re-registered when they change).
+
+### 4. First-time server setup
+
+```text
+/set-channel #level-ups     # where level-up cards are posted
+/setup-roles both           # create the default text + voice role ladders
+/config view                # review everything
+```
 
 ---
 
-## First-time server setup
+## Configuration
 
-Once the bot is running, there are two things worth doing right away:
+### Environment variables
 
-**Set a level-up channel** so announcements go somewhere specific instead of the same channel as the triggering message:
+| Variable | Required | Description |
+|---|---|---|
+| `DISCORD_TOKEN` | 鉁� | Bot token from the Developer Portal |
+| `CLIENT_ID` | 鉁� | Application (client) ID |
+| `GUILD_ID` | 鈥� | Register commands to one server (instant). Leave empty for global (up to 1 h) |
+| `DB_PATH` | 鈥� | SQLite file location. Default `./data/bot.db` |
+
+### Optional fonts
+
+The cards work with system fonts, but look sharper with these files in `assets/fonts/`:
+
 ```
-/set-channel #level-ups
+Anton-Regular.ttf          # big condensed headlines and level numbers
+Montserrat-Bold.ttf        # small text
+Montserrat-Regular.ttf
 ```
 
-**Set up activity roles** — this creates all the default level roles automatically:
-```
-/setup-roles both
-```
+Both are free on Google Fonts. Restart the bot after adding them.
 
-That's all you need. The bot will start handing out roles as people hit milestones. You can customise everything later.
+### Card colours
+
+Defaults use the red theme. Override per server with `/set-card-color`:
+
+| Element | Default | Controls |
+|---|---|---|
+| `accent` | `#E8381F` | Sun, slashes, border, avatar ring, role badge |
+| `background` | `#0A0A0D` | Card background |
+| `bar` | `#E8381F` | XP bars (voice bar is automatically a shade darker) |
+| `text` | `#F4F4F5` | Names and labels |
 
 ---
 
 ## Commands
 
-### For everyone
+### Members
 
-| Command | What it does |
+| Command | Description |
 |---|---|
-| `/level` | Your rank card with Text XP, Voice XP, levels, ranks, and your current role badge |
-| `/level @someone` | Check another member's card |
-| `/leaderboard text` | Top 10 by chat XP |
-| `/leaderboard voice` | Top 10 by voice XP |
-| `/stats` | Server totals — members tracked, combined XP, top users |
-| `/help` | All commands. Admins see the full list; regular members see just the user commands |
+| `/level [user]` | Level card: text + voice XP, levels, ranks, role badge |
+| `/leaderboard <text\|voice> [period]` | Paged rankings. Period: `day`, `week`, `month`, `lifetime` (UTC days) |
+| `/daily` | Claim daily XP. Claim again within 48 h to keep the streak |
+| `/rewards` | Level roles you can earn and how far away the next one is |
+| `/stats` | Server totals and top users |
+| `/help` | Command list (admins see the full list) |
 
-### XP and configuration (admins only)
+### Admin 鈥� settings
 
-| Command | What it does |
+| Command | Description |
 |---|---|
-| `/set-xp @user text 25` | Force a user to level 25 text XP — also syncs their roles |
-| `/set-xp @user voice 10` | Same for voice |
-| `/set-channel #channel` | Where level-up cards get posted |
-| `/set-channel` | No argument — turns off level-up announcements |
-| `/set-card-color accent #FF6B6B` | Change the card accent colour |
-| `/set-card-color background #1A1A2E` | Change the card background |
-| `/set-card-color bar #FF6B6B` | Change the XP bar colour |
-| `/set-card-color text #FFFFFF` | Change text colour |
-| `/set-xp-rate` | View current XP settings |
-| `/set-xp-rate multiplier 2.0` | Permanently double XP (use `/xp-boost` for timed events) |
-| `/set-xp-rate text-min 10 text-max 30` | Change per-message XP range |
-| `/set-xp-rate voice-xp 15` | Change voice XP per minute |
-| `/ignore-channel #bot-spam` | Toggle XP off in a channel (run again to re-enable) |
-| `/no-xp-role @role` | Stop a role from earning XP (run again to re-enable) |
-| `/reset-user @user text` | Wipe someone's text XP |
-| `/reset-user @user voice` | Wipe someone's voice XP |
-| `/reset-user @user all` | Full reset |
+| `/config view` | Every setting at a glance |
+| `/config levelup-announcements <bool>` | Post level-up cards or not (roles are always given) |
+| `/config voice-min-users <1-10>` | People needed in a voice channel before anyone earns XP (default 2) |
+| `/config antispam <bool>` | No XP for repeating the same message |
+| `/config daily-xp <0-5000>` | Base XP for `/daily` (`0` disables it) |
+| `/set-channel [channel]` | Level-up channel (omit to use the triggering channel) |
+| `/set-xp-rate 鈥 | Text range, voice rate and permanent multiplier |
+| `/set-card-color <element> <hex>` | Recolour the cards |
+| `/ignore-channel <channel>` | Toggle XP in a channel (threads inherit it) |
+| `/no-xp-role <role>` | Toggle a role's ability to earn text **and** voice XP |
 
-### Activity roles (admins only)
+### Admin 鈥� users and roles
 
-| Command | What it does |
+| Command | Description |
 |---|---|
-| `/setup-roles both` | Creates all default text and voice level roles automatically |
-| `/setup-roles text stack` | Text roles only, stacking mode (members keep all earned roles) |
-| `/setup-roles voice single` | Voice roles only, single mode (only highest role kept) |
-| `/manage-roles set 20 @role` | Map any existing role to level 20 (text by default) |
-| `/manage-roles set 20 @role voice` | Same but for voice XP |
-| `/manage-roles rename 20 "🔥 Veteran"` | Rename the role at level 20 (renames the actual Discord role too) |
-| `/manage-roles remove 20` | Remove the level 20 role milestone |
-| `/manage-roles list` | See every configured milestone for text and voice |
-| `/sync-roles` | Rebuilds everyone's roles based on their current saved level — run this after changing milestones |
+| `/set-xp <user> <type> <level>` | Force a level (syncs roles) |
+| `/reset-user <user> <text\|voice\|all>` | Wipe XP |
+| `/setup-roles [type] [mode]` | Create the default role ladders (`stack` or `single`) |
+| `/manage-roles set\|remove\|rename\|list` | Map your own roles to levels |
+| `/sync-roles` | Rebuild everyone's roles from saved levels |
+| `/xp-boost start\|stop\|status` | Timed multiplier events |
 
-### XP boost events (admins only)
+### Bot owner
 
-| Command | What it does |
+| Command | Description |
 |---|---|
-| `/xp-boost start 2h` | 2× XP for 2 hours, announces in the level-up channel |
-| `/xp-boost start 1h 3.0 "Weekend Bonus"` | Custom multiplier and event name |
-| `/xp-boost stop` | Cancel early |
-| `/xp-boost status` | See the active boost and when it expires |
+| `/backup` | Sends a consistent copy of `bot.db` (ephemeral, owner only) |
 
 ---
 
-## Activity roles
+## How it works
 
-The default role set (created by `/setup-roles`) looks like this:
+### XP rules
 
-| Level | Text role | Voice role |
-|---|---|---|
-| 5 | 📝 Newcomer | 🎧 Listener |
-| 10 | 💬 Chatter | 🎙️ Talker |
-| 20 | 🗣️ Regular | 📻 Regular |
-| 35 | ⭐ Veteran | 🔊 Veteran |
-| 50 | 🔥 Elite | 🎵 Elite |
-| 75 | 💎 Legend | 👑 Voice King |
+| Source | Rule |
+|---|---|
+| **Text** | 15鈥�25 XP per message (configurable), 60 s cooldown, messages under 5 characters ignored, identical repeats ignored |
+| **Voice** | 10 XP per minute while unmuted and undeafened, with at least `voice-min-users` humans in the channel. AFK channel, ignored channels, no-XP roles and bots earn nothing |
+| **Daily** | `daily-xp 脳 (1 + 0.1 脳 min(streak 鈭� 1, 9))`. Streak survives 48 h gaps |
+| **Boost** | A running `/xp-boost` replaces the base multiplier until it expires |
 
-You can change any of these names with `/manage-roles rename`, or point any level to a role you already have with `/manage-roles set`. The bot won't touch roles it doesn't know about.
+### Level curve
 
-**Stack vs single mode** — in stack mode, someone who hits level 35 keeps Newcomer, Chatter, Regular, and Veteran all at once. In single mode, they only have Veteran. You set this when running `/setup-roles`, or change it any time and run `/sync-roles` to rebuild everyone's roles from scratch.
+XP needed to *reach* level `n` from `n 鈭� 1` is `floor(100 脳 n^1.5)`. Max level is 100.
 
-**The bot's role needs to be above the level roles** in your server's role list for Discord to let it assign them. Drag the bot's role above the highest level role in Server Settings → Roles.
-
----
-
-## Customising the card
-
-Run `/set-card-color`, pick an element from the dropdown, and enter a hex code. Both `#FF5733` and `FF5733` work.
-
-| Element | Default | Controls |
-|---|---|---|
-| Accent | `#5865F2` | Left edge stripe, avatar glow ring, role badge colour |
-| Background | `#23272A` | Card background |
-| Bar | `#5865F2` | Text XP bar |
-| Text | `#FFFFFF` | Username, level labels, XP numbers |
-
-The voice XP bar automatically shifts hue from the bar colour — you don't need to set it separately.
-
-Some combinations worth trying:
-
-```
-Cyberpunk:   accent #00FFFF  background #0D0D1A  bar #FF00FF
-Sunset:      accent #FF6B6B  background #1A1A2E  bar #FF8E53
-Forest:      accent #57CC99  background #1B2226  bar #38A3A5
-Gold:        accent #FFD700  background #1C1C1C  bar #FFA500
-```
-
----
-
-## How XP works
-
-**Text XP** — each message earns between 15 and 25 XP by default (random, so it doesn't feel mechanical). There's a 60-second cooldown between grants, and messages under 5 characters don't count.
-
-**Voice XP** — 10 XP every 60 seconds while you're in a voice channel and not muted or deafened. If the bot restarts while people are in voice, it picks them up immediately when it comes back.
-
-**XP boosts** — `/xp-boost` temporarily overrides the multiplier for the whole server. The base multiplier from `/set-xp-rate` is still there underneath; when the boost expires, it goes back to that.
-
-**Level curve** — `floor(100 × (level + 1)^1.5)` per level. Early levels go fast, higher levels take real time:
-
-| Level | XP to reach this level | Total XP from 0 |
-|---|---|---|
+| Level | XP for that level | Total XP |
+|---:|---:|---:|
 | 1 | 100 | 100 |
-| 5 | 245 | 886 |
-| 10 | 332 | 2,181 |
-| 25 | 510 | 7,747 |
-| 50 | 722 | 21,238 |
-| 75 | 884 | 38,943 |
-| 100 | 1,020 | 59,814 |
+| 5 | 1,118 | 2,819 |
+| 10 | 3,162 | 14,264 |
+| 25 | 12,500 | 131,300 |
+| 50 | 35,355 | 724,849 |
+| 75 | 64,951 | 1,981,105 |
+| 100 | 100,000 | 4,050,079 |
+
+### Architecture
+
+```text
+src/
+鈹溾攢鈹� index.js                  entry: load commands/events, housekeeping, graceful shutdown
+鈹溾攢鈹� commands/                 one file per slash command
+鈹溾攢鈹� events/
+鈹�   鈹溾攢鈹� messageCreate.js      text XP, cooldown, anti-spam
+鈹�   鈹溾攢鈹� voiceStateUpdate.js   voice tracking + 60 s XP ticker
+鈹�   鈹溾攢鈹� ready.js              seeds the voice tracker, starts the ticker
+鈹�   鈹斺攢鈹� interactionCreate.js  command router
+鈹溾攢鈹� database/
+鈹�   鈹斺攢鈹� db.js                 SQLite, migrations, write-behind cache, XP math
+鈹斺攢鈹� utils/
+    鈹溾攢鈹� cardRenderer.js       level / level-up / leaderboard cards (+ caches, limiter)
+    鈹溾攢鈹� levelUp.js            shared flow: role 鈫� card 鈫� announcement
+    鈹溾攢鈹� roleManager.js        create / assign / sync level roles
+    鈹溾攢鈹� deployCommands.js     registers slash commands when they changed
+    鈹溾攢鈹� theme.js              embed colour helper
+    鈹斺攢鈹� xpHelpers.js          validation + formatting
+```
+
+### Data and performance
+
+- **Storage:** SQLite in WAL mode. Tables: `users`, `guilds`, `level_roles`, `xp_boosts`, `xp_history`.
+- **Write-behind cache:** XP lives in memory and is flushed to disk in one transaction every 3 s and on shutdown. Stop the bot cleanly (SIGINT/SIGTERM) so nothing is lost.
+- **History:** per-day XP totals power the day/week/month leaderboards and are pruned after ~5 weeks.
+- **Rendering:** at most 2 cards are drawn at once; avatars (10 min LRU) and card backgrounds are cached.
+- **Migrations:** run automatically on every start; existing databases upgrade in place.
 
 ---
 
 ## Hosting
 
-### Railway
+<details>
+<summary><b>Katabump / small panels</b></summary>
 
-Push your code to GitHub, create a new Railway project from that repo, add your environment variables under Variables, and deploy. Railway picks up `npm start` automatically. Commands register on boot, nothing extra needed.
+- Use Node 20, 22 or 24. `better-sqlite3` v12 ships prebuilt binaries for all three, so no compiler is needed.
+- After changing `package.json`, delete `node_modules` and `package-lock.json`, then run `npm install`.
+- CPU is capped, so the render limiter matters 鈥� don't raise it unless you have headroom.
+- Stop the bot from the panel instead of killing the container, and download `data/bot.db` (or run `/backup`) regularly.
 
-### Render
+</details>
 
-Same idea — connect the repo, add env vars, set the start command to `npm start`, and use **Background Worker** as the service type.
+<details>
+<summary><b>Railway / Render</b></summary>
 
-### VPS
+Connect the repo, add the environment variables, and use `npm start`. On Render choose **Background Worker**. Attach a persistent volume and point `DB_PATH` at it, otherwise the database is wiped on redeploy.
+
+</details>
+
+<details>
+<summary><b>VPS with pm2</b></summary>
 
 ```bash
-# Get Node.js 18
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt install -y nodejs
-
-# Set up the bot
-git clone https://github.com/yourusername/discord-level-bot.git
-cd discord-level-bot
-npm install
-cp .env.example .env
-nano .env
-
-# Keep it running with pm2
+git clone https://github.com/yourusername/discord-level-bot.git && cd discord-level-bot
+npm install && cp .env.example .env && nano .env
 npm install -g pm2
 pm2 start src/index.js --name level-bot
-pm2 save
-pm2 startup
+pm2 save && pm2 startup
 ```
 
-Run whatever command `pm2 startup` prints — it sets up auto-restart on reboot.
-
-### Optional: Montserrat font
-
-The bot falls back to system fonts which is fine, but Montserrat looks better on the cards. Download it free from [Google Fonts](https://fonts.google.com/specimen/Montserrat) and drop the files here:
-
-```
-assets/fonts/Montserrat-Bold.ttf
-assets/fonts/Montserrat-Regular.ttf
-```
-
-Restart the bot after adding them.
-
----
-
-## File structure
-
-```
-discord-level-bot/
-├── src/
-│   ├── index.js                    # entry point — deploys commands then logs in
-│   ├── commands/
-│   │   ├── level.js                # rank card
-│   │   ├── leaderboard.js          # top 10 image card
-│   │   ├── stats.js                # server totals
-│   │   ├── help.js                 # command list
-│   │   ├── setupRoles.js           # create default level roles
-│   │   ├── manageRoles.js          # set / remove / rename / list role milestones
-│   │   ├── syncRoles.js            # rebuild everyone's roles from saved levels
-│   │   ├── xpBoost.js              # timed XP events
-│   │   ├── setXp.js                # force-set a user's level
-│   │   ├── setChannel.js           # level-up announcement channel
-│   │   ├── setCardColor.js         # card colour customisation
-│   │   ├── setXpRate.js            # XP rate and multiplier config
-│   │   ├── ignoreChannel.js        # toggle XP in a channel
-│   │   ├── noXpRole.js             # block a role from earning XP
-│   │   └── resetUser.js            # wipe a user's XP
-│   ├── events/
-│   │   ├── ready.js                # populates voice tracker on startup
-│   │   ├── messageCreate.js        # text XP, cooldown, role awards
-│   │   ├── voiceStateUpdate.js     # voice join/leave/mute tracking and XP ticker
-│   │   └── interactionCreate.js    # command router
-│   ├── database/
-│   │   └── db.js                   # SQLite, all queries, XP math, role and boost APIs
-│   └── utils/
-│       ├── cardRenderer.js         # draws rank cards and leaderboard cards
-│       ├── roleManager.js          # create default roles, assign/remove, sync
-│       ├── deployCommands.js       # registers slash commands with Discord
-│       └── xpHelpers.js            # hex validation, colour helpers
-├── data/                           # auto-created — bot.db lives here
-├── assets/fonts/                   # optional Montserrat fonts
-├── .env.example
-└── package.json
-```
+</details>
 
 ---
 
 ## Troubleshooting
 
-**Slash commands aren't appearing**
-Global commands take up to an hour. Set `GUILD_ID` in your `.env` to your server's ID for instant updates while testing, then remove it when you're done.
-
-**Bot is online but doesn't respond to messages**
-Message Content Intent isn't enabled. Go to the developer portal, open your bot's page, scroll down to Privileged Gateway Intents, and turn it on.
-
-**Level-up messages aren't sending**
-Run `/set-channel #your-channel`. Without a configured channel the bot tries to send in the same channel as the triggering message — if it doesn't have permission there, it fails silently.
-
-**Activity roles aren't being assigned**
-Two things to check: the bot's role needs to be above the level roles in Server Settings → Roles, and the bot needs the Manage Roles permission. Also make sure you've run `/setup-roles` or `/manage-roles set` to configure which roles go with which levels.
-
-**`npm install` fails**
-`@napi-rs/canvas` ships pre-built for most systems, but on older Linux distros it sometimes needs:
-```bash
-sudo apt install -y libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
-```
-
-**Voice XP not tracking after a restart**
-The bot scans all voice channels on startup and picks up anyone already there. If it's still not working, check the bot has the Connect permission in those channels.
-
-**Roles are stacking when I want single mode, or vice versa**
-Run `/setup-roles` again with the mode argument — either `stack` or `single` — then run `/sync-roles` to rebuild everyone's roles based on the new setting.
+| Symptom | Fix |
+|---|---|
+| `Could not locate the bindings file 鈥� better_sqlite3.node` | Old `better-sqlite3` on Node 24. This project uses v12 鈥� delete `node_modules` and `package-lock.json`, run `npm install`. |
+| Slash commands missing | Global commands take up to an hour. Set `GUILD_ID` for instant updates while testing. |
+| Bot ignores messages | Enable **Message Content Intent** in the Developer Portal. |
+| No level-up cards | Check `/config view` (announcements on?) and that the bot can **Send Messages** and **Attach Files** in the channel. |
+| Roles not assigned | Bot needs **Manage Roles** and its role must sit above the level roles. Run `/sync-roles` after changing milestones. |
+| Voice XP not increasing | Needs 2+ people by default (`/config voice-min-users`), not muted/deafened, not in the AFK channel. |
+| Cards look plain | Add `Anton-Regular.ttf` to `assets/fonts/` and restart. |
+| `npm install` fails on old Linux | `sudo apt install -y libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev` |
 
 ---
 
+## Contributing
+
+Issues and pull requests are welcome.
+
+1. Fork the repo and create a branch: `git checkout -b feat/my-change`
+2. Keep commands in `src/commands/` and shared logic in `src/utils/`
+3. Update [CHANGELOG.md](CHANGELOG.md) under **Unreleased**
+4. Open a pull request describing what changed and why
+
 ## License
 
-MIT. Use it, fork it, do whatever — just keep the license file in there.
+[MIT](LICENSE) 鈥� use it, fork it, just keep the license file.
